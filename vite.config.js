@@ -4,6 +4,8 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // caminhos relativos para o build funcionar servido em qualquer subcaminho (pré-visualização/PWA)
+  base: "./",
   server: {
     host: "0.0.0.0",
     port: 3000,

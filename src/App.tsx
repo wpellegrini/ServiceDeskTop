@@ -1,3 +1,4 @@
+import { Component } from "react";
 import type { ReactNode } from "react";
 import type { Page } from "./store";
 import { AppProvider, useApp } from "./store";
@@ -59,10 +60,41 @@ function RedirectTo({ page, nav }: { page: Page; nav: (p: Page) => void }) {
   return null;
 }
 
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="grid min-h-screen place-items-center bg-paper px-6">
+          <div className="w-full max-w-lg rounded-xl border border-danger-500/40 bg-card p-6 shadow-lift">
+            <p className="font-mono text-[11px] font-bold tracking-widest text-danger-600 uppercase">Erro de renderização</p>
+            <h1 className="mt-2 font-display text-lg font-bold text-ink">Algo falhou ao montar a tela</h1>
+            <pre className="mt-3 max-h-48 overflow-auto rounded-lg bg-paper p-3 font-mono text-[11px] leading-relaxed text-ink-soft">
+              {String(this.state.error?.message ?? this.state.error)}
+            </pre>
+            <button
+              onClick={() => { this.setState({ error: null }); window.location.reload(); }}
+              className="mt-4 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+            >
+              Recarregar aplicação
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   return (
-    <AppProvider>
-      <Router />
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <Router />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
